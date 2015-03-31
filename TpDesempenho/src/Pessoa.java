@@ -15,11 +15,11 @@ public class Pessoa {
 		this.pais = pais;
 		
 		Random random = new Random();
-		this.idade = ((random.nextLong()<< 1) >>> 1) %127;
-		this.renda = ((random.nextLong()<< 1) >>> 1) %1023;
-		this.escolaridade = ((random.nextLong()<< 1) >>> 1) %3;
-		this.idioma = ((random.nextLong()<< 1) >>> 1) %4095;
-		this.localizador = ((random.nextLong()<< 1) >>> 1) %16777215;
+		this.idade = ((random.nextLong()<< 1) >>> 1) % 127;
+		this.renda = ((random.nextLong()<< 1) >>> 1) % 1023;
+		this.escolaridade = ((random.nextLong()<< 1) >>> 1) % 3;
+		this.idioma = ((random.nextLong()<< 1) >>> 1) % 4095;
+		this.localizador = ((random.nextLong()<< 1) >>> 1) % 16777215;
 	}
 	
 	public long getSexo(){

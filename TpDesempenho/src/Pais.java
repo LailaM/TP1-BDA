@@ -9,6 +9,10 @@ public class Pais {
 
 	}
 	
+	public void setPopulacao(long totalParaAtribuir){
+		this.populacao = (int)totalParaAtribuir;
+	}
+	
 	public void randomSetPopulacao(long totalPessoasMundo, long totalParaAtribuir){
 		int max, min;
 		min = (int)totalPessoasMundo/6000000;;
@@ -32,12 +36,17 @@ public class Pais {
 			}
 		}
 		Random random = new Random();
-		this.populacao = random.nextInt(max) + min;
+		int dif = max - min + 1;
+		this.populacao = random.nextInt(dif) + min;
 	}
 	
 	public void randomSetPopulacaoMasc(){
+		int max, min, dif;
+		max = (int)((this.populacao/2)*1.2);
+		min = (int)((this.populacao/2)*0.75);
+		dif = max - min +1;
 		Random random = new Random();
-		this.populacaoMasc = random.nextInt( (int)((this.populacao/2)*1.2) ) + (int)((this.populacao/2)*0.75);
+		this.populacaoMasc = random.nextInt(dif) + min;
 	}
 	
 	public void setPopulacaoFem(int populacaoMasc){
