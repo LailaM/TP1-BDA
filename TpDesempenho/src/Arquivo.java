@@ -90,7 +90,16 @@ public class Arquivo {
             buffer.flip();
             while (buffer.hasRemaining())
             {
-                System.out.println(buffer.getLong());
+            	Pessoa p = new Pessoa(buffer.getLong());
+                System.out.println(
+                		"sexo: " + p.getSexo() + 
+                		", idade: " +p.getIdade() + 
+                		", Renda: " +p.getRenda() + 
+                		", Escolaridade: " +p.getEscolaridade() + 
+                		", Idioma: " +p.getIdioma() + 
+                		", Pais: " +p.getPais() + 
+                		", Localizador: " +p.getLocalizador()
+                		);
             }
             buffer.clear(); 
         }
