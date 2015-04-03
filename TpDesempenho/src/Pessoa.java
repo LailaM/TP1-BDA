@@ -1,6 +1,5 @@
 import java.util.Random;
 
-
 public class Pessoa {
 	long sexo;
 	long idade;
@@ -10,16 +9,33 @@ public class Pessoa {
 	long pais;
 	long localizador;
 	
-	public Pessoa(long sexo, long pais){
-		this.sexo = sexo;
-		this.pais = pais;
-		
+	public Pessoa(){
 		Random random = new Random();
-		this.idade = ((random.nextLong()<< 1) >>> 1) % 127;
-		this.renda = ((random.nextLong()<< 1) >>> 1) % 1023;
-		this.escolaridade = ((random.nextLong()<< 1) >>> 1) % 3;
-		this.idioma = ((random.nextLong()<< 1) >>> 1) % 4095;
-		this.localizador = ((random.nextLong()<< 1) >>> 1) % 16777215;
+		// Gera numeros aleatórios e elimina-se o sinal.
+		this.sexo = ((random.nextLong()<< 1) >>> 1) % 2;
+		this.pais = ((random.nextLong()<< 1) >>> 1) % 256;
+		this.idade = ((random.nextLong()<< 1) >>> 1) % 128;
+		this.renda = ((random.nextLong()<< 1) >>> 1) % 1024;
+		this.escolaridade = ((random.nextLong()<< 1) >>> 1) % 4;
+		this.idioma = ((random.nextLong()<< 1) >>> 1) % 4096;
+		this.localizador = ((random.nextLong()<< 1) >>> 1) % 16777216;
+	}
+	
+	//Arrumar
+	public Pessoa(long pessoaBinario){
+		if(pessoaBinario < 0){
+			this.sexo = 0;
+		}
+		else{
+			this.sexo = 1;
+		}
+		this.pais = (pessoaBinario >> 55) & 255L; // mascara com 8 1s
+		this.idade = (pessoaBinario >> 48) & 127L; // mascara com 7 1s
+		this.renda = (pessoaBinario >> 38) & 1023L; // mascara com 10 1s
+		this.escolaridade = (pessoaBinario >> 36) & 3L; // mascara com 2 1s
+		this.idioma = (pessoaBinario >> 24) & 4095L; // mascara com 12 1s
+		this.localizador = pessoaBinario & 16777215L; // mascara com 24 1s
+		System.out.println(16777215L);
 	}
 	
 	public long getSexo(){
@@ -45,15 +61,15 @@ public class Pessoa {
 	}
 	
 	public long getPessoaBinario(){
-		long pessoa = 0L;
-		pessoa = pessoa | (this.idade << 56);
-		pessoa = pessoa | (this.renda << 46);
-		pessoa = pessoa | (this.escolaridade << 44);
-		pessoa = pessoa | (this.idioma << 32);
-		pessoa = pessoa | (this.pais << 24);
-		pessoa = pessoa | (this.localizador);
+		long pessoaBinario = 0L;
+		pessoaBinario = pessoaBinario | (this.pais << 55);
+		pessoaBinario = pessoaBinario | (this.idade << 48);
+		pessoaBinario = pessoaBinario | (this.renda << 38);
+		pessoaBinario = pessoaBinario | (this.escolaridade << 36);
+		pessoaBinario = pessoaBinario | (this.idioma << 24);
+		pessoaBinario = pessoaBinario | (this.localizador);
 		if(this.sexo == 0)
-			return pessoa;
-		else return -1*pessoa;
+			return pessoaBinario;
+		else return -1*pessoaBinario;
 	}
 }

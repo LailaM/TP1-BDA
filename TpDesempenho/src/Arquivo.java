@@ -1,135 +1,179 @@
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Scanner;
 
 
 public class Arquivo {
-	
 	
 	public final static int TAMANHO_MEM = 100;//10000000;
 	public final static int NUM_BUFFERS = 6;//600;
 	public final static long TAMANHO_ARQ = 600;//6000000000L;
 	public final static long INFINITO = Long.MAX_VALUE;
-	 
-    public Arquivo(long[] buffer, String nomeArquivo) throws IOException {
- 
-    	escreveArquivoBinário(buffer,nomeArquivo);
- 
-    }
- 
-    /**
-     * Escreve uma lista de longs em um arquivo usando nio.
-     */
-    public static void escreveArquivoBinário(long[] buffer, String nomeArquivo) {
- 
-        Path caminhoArquivo = Paths.get(nomeArquivo);
-        
-        try (BufferedOutputStream bStream = new BufferedOutputStream(Files.newOutputStream(caminhoArquivo))) {
-        	 
-        	DataOutputStream dados = new DataOutputStream(bStream);
-        	for (long i : buffer) {
-            	dados.writeLong(i);
-            }
-    	 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
- 
-    }
-    
-    /**
-     * Le uma lista de longs em um arquivo usando nio.
-     */
-    public static long[] leArquivoBinário(String nomeArquivo) {
-    	long[] buffer = new long[TAMANHO_MEM];
-    	
-        Path caminhoArquivo = Paths.get(nomeArquivo);
-        
-        try (BufferedInputStream bStream = new BufferedInputStream(Files.newInputStream(caminhoArquivo))) {
-        	 
-        	DataInputStream dados = new DataInputStream(bStream);
-        	for (int i = 0; i < buffer.length; i++) {
-            	buffer[i] = dados.readLong();
-            }
-    	 
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+	
+	/**
+	 * Carrega buffer de bytes com os dados de uma pessoa
+	 */
+	private static ByteBuffer setBuffer() {
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        while (buffer.hasRemaining()) {
+			Pessoa p = new Pessoa();
+			buffer.putLong(p.getPessoaBinario());
+		}
+
+        buffer.rewind();
         return buffer;
     }
-    
-    /* Ordena arquivo de longs. 
-     * Adaptado do código "External Sort" de Gregory R. Everitt.
-     * Ver licensa em anexo.
-    */
-    public void escreveArquivoBinárioOrdenado(String nomeArquivo) throws FileNotFoundException {
+	
+	/**
+	 * Cria arquivos temporarios para auxiliar a ordenação
+	 * @throws IOException
+	 */
+	public static void criaArquivosTemp() throws IOException
+    {
+		for(int i =0; i<NUM_BUFFERS; i++){
+			File file = new File("./arquivoTemp"+i+".bin");
+			if (!file.exists()) {
+				 file.createNewFile();
+			}
+		}
+    }
+	/**
+	 * Apaga arquivos temporarios criados para a ordenação
+	 * @throws IOException
+	 */
+	public static void apagaArquivosTemp() throws IOException
+    {
+		for(int i =0; i<NUM_BUFFERS; i++){
+			File file = new File("./arquivoTemp"+i+".bin");
+			if (file.exists()) {
+				 file.delete();
+			}
+		}
+    }
+	
+	/**
+     * Escreve uma lista de longs em um arquivo usando nio.
+     */
+	public static void escreveArquivoBinario(String nomeArquivo) throws IOException
+    {
+        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "rw");
+        FileChannel aChannel = arquivo.getChannel();
+        for(int i = 0; i < NUM_BUFFERS; i++)
+        {
+        	ByteBuffer buffer = setBuffer();
+        	aChannel.write(buffer);
+        }
+        aChannel.close();
+        arquivo.close();
+    }
+	
+	/**
+     * Le uma lista de longs em um arquivo usando nio e imprime o resultado na tela.
+     */
+	public static void leArquivoBinario(String nomeArquivo) throws IOException
+    {
+        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+                System.out.println(buffer.getLong());
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
+    }
+
+	/** Ordena arquivo de longs. 
+     *  Adaptado do código "External Sort" de Gregory R. Everitt.
+     *  Ver licensa em anexo.
+	 * @throws IOException 
+     */
+	public static void escreveArquivoBinarioOrdenado(String nomeArquivo) throws IOException {
 		
 		int idBuffer = 0; //para o nome dos arquivos temporários
 		long[] buffer = new long[TAMANHO_MEM];
-		Scanner aScanner = new Scanner(new File(nomeArquivo));
+		
+		InputStream entrada = null;
+		try {
+			entrada = Files.newInputStream(Paths.get(nomeArquivo));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		DataInputStream dadosEntrada = new DataInputStream(entrada);
 
-		while (aScanner.hasNext()) {
+		for( int i = 0; i<NUM_BUFFERS; i++) {
 			
 			// carrega buffer
-			for(int i=0; i<TAMANHO_MEM; i++){
-				buffer[i]= aScanner.nextInt();
+			for(int j=0; j<TAMANHO_MEM; j++){
+				buffer[j]= dadosEntrada.readLong();
 			}
 
 			long[] tempBuffer = new long[TAMANHO_MEM];
 			long[] bufferOrdenado = Ordena(TAMANHO_MEM, buffer, tempBuffer);
 
 			// imprime buffer ordenado em arquivo temporario
-			PrintStream arquivoTemp = null;
+			OutputStream temp = null;
 			try {
-				arquivoTemp = new PrintStream("arquivoTemp"+idBuffer);
+				temp = Files.newOutputStream(Paths.get("./arquivoTemp"+idBuffer+".bin"));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
-			PrintStream saida = new PrintStream(arquivoTemp);
+			DataOutputStream dadosTemp = new DataOutputStream(temp);
 
-			for (long i : bufferOrdenado) { // imprime os elementos do buffer no arquivo
-				saida.println(i);
+			for (long j : bufferOrdenado) { // imprime os elementos do buffer no arquivo
+				dadosTemp.writeLong(j);
 			}
 
-			saida.close();
+			dadosTemp.close();
 			idBuffer++;
 		}
-
+		
 		// carrega os primeiros números de cada buffer
 		long[] primeirosNum = new long[NUM_BUFFERS];
-		Scanner[] bScanners = new Scanner[NUM_BUFFERS]; // um Scanner para cada buffer
+		InputStream[] bEntradas = new InputStream[NUM_BUFFERS]; // um Stream para cada buffer
+		DataInputStream[] bDadosEntrada = new DataInputStream[NUM_BUFFERS];
+		
 		idBuffer = 0;
-		for (int i = 0; i<NUM_BUFFERS; i++) {
-			bScanners[i] = new Scanner(new File("arquivoTemp"+idBuffer));
-			if (bScanners[i].hasNextInt())
-				primeirosNum[i] = bScanners[i].nextInt();
-			else
-				primeirosNum[i] = INFINITO;
+		for(int i = 0; i < NUM_BUFFERS; i++){
+			
+			try {
+				bEntradas[i] = Files.newInputStream(Paths.get("./arquivoTemp"+idBuffer+".bin"));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
+			bDadosEntrada[i] = new DataInputStream(bEntradas[i]);
+
+			primeirosNum[i] = bDadosEntrada[i].readLong();
 			idBuffer++;
 		}
 
 		// imprime os números de cada buffer de maneira ordenada
-		PrintStream saida = null;
+		OutputStream saidaOrdenada = null;
 		try {
-			saida = new PrintStream(nomeArquivo + "Ordenado");
+			saidaOrdenada = Files.newOutputStream(Paths.get("BancoOrdenado.bin"));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		PrintStream saidaOrdenada = new PrintStream(saida);
+		DataOutputStream dadosSaidaOrdenada = new DataOutputStream(saidaOrdenada);
 
 		for (long i = 0; i<TAMANHO_ARQ; i++) {
 			long vMin = primeirosNum[0]; //valor
-			int iMin = 0;//indice
+			int iMin = 0;//indice do arquivo
 			for (int j = 0; j<NUM_BUFFERS; j++) {
 				if (vMin > primeirosNum[j]){
 					vMin = primeirosNum[j];
@@ -137,17 +181,20 @@ public class Arquivo {
 				}
 
 			}
-			saidaOrdenada.println(vMin); //imprime menor valor
-			if (bScanners[iMin].hasNextInt())
-				primeirosNum[iMin] = bScanners[iMin].nextInt();
-			else
+			dadosSaidaOrdenada.writeLong(vMin); //imprime menor valor
+			
+			try{
+				primeirosNum[iMin] = bDadosEntrada[iMin].readLong();
+			}
+			catch(IOException e){
 				primeirosNum[iMin] = INFINITO;
+			}
 		}
-		saidaOrdenada.close();
+		dadosSaidaOrdenada.close();
 
 	}
     
-	public static long[] Ordena(int n, long[] buffer, long[] tempBuff) {
+	private static long[] Ordena(int n, long[] buffer, long[] tempBuff) {
 
 		for(int tamanho = 1; tamanho < n; tamanho = 2 * tamanho) {
 			for(int i= 0; i < n; i = i + 2 * tamanho) {
@@ -158,7 +205,7 @@ public class Arquivo {
 		return buffer;
 	}
 	
-	public static void Merge(long[] A, int esquerda, int direita, long fim, long[] B)
+	private static void Merge(long[] A, int esquerda, int direita, long fim, long[] B)
 	{
 		int i0 = esquerda;
 		int i1 = direita;
@@ -180,4 +227,3 @@ public class Arquivo {
 		}
 	}
 }
-
