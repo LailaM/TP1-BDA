@@ -25,7 +25,7 @@ public class Pessoa {
 		long pessoa = pessoaBinario;
 		if(pessoaBinario < 0){
 			this.sexo = 1;
-			pessoa = -1 * pessoa; //multiplica por um de novo por causa do complemento de 1.
+			pessoa = -1 * pessoa; //multiplica por -1 de novo por causa do complemento de 1.
 		}
 		else{
 			this.sexo = 0;

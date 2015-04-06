@@ -20,19 +20,9 @@ public class Arquivo {
 	public final static long TAMANHO_ARQ = 600;//6000000000L;
 	public final static long INFINITO = Long.MAX_VALUE;
 	
-	/**
-	 * Carrega buffer de bytes com os dados de uma pessoa
-	 */
-	private static ByteBuffer setBuffer() {
-        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
-        while (buffer.hasRemaining()) {
-			Pessoa p = new Pessoa();
-			buffer.putLong(p.getPessoaBinario());
-		}
-
-        buffer.rewind();
-        return buffer;
-    }
+	public static RandomAccessFile arquivo = null;
+	public static FileChannel aChannel = null;
+	
 	
 	/**
 	 * Cria arquivos temporarios para auxiliar a ordenação
@@ -62,21 +52,32 @@ public class Arquivo {
     }
 	
 	/**
-     * Escreve uma lista de longs em um arquivo usando nio.
+     * Abre um arquivo para escrita usando nio.
      */
-	public static void escreveArquivoBinario(String nomeArquivo) throws IOException
+	public static void abreArquivoBinario(String nomeArquivo) throws IOException
     {
-        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "rw");
-        FileChannel aChannel = arquivo.getChannel();
-        for(int i = 0; i < NUM_BUFFERS; i++)
-        {
-        	ByteBuffer buffer = setBuffer();
-        	aChannel.write(buffer);
-        }
+        arquivo = new RandomAccessFile (nomeArquivo, "rw");
+        aChannel = arquivo.getChannel();
+    }
+	
+	/**
+	 * Fecha o arquivo que foi aberto para escrita usando nio.
+	 */
+    public static void fechaArquivoBinario() throws IOException
+    {
         aChannel.close();
         arquivo.close();
     }
 	
+    /**
+	 * Imprime um buffer de bytes no arquivo aberto para escrita
+	 */
+    public static void imprimeBufferArquivoBinario(ByteBuffer buffer) throws IOException
+    {
+    	aChannel.write(buffer);
+    	buffer.rewind();
+    }
+    
 	/**
      * Le uma lista de longs em um arquivo usando nio e imprime o resultado na tela.
      */
@@ -105,6 +106,32 @@ public class Arquivo {
         }
         aChannel.close();
         arquivo.close();
+    }
+	
+	/**
+     * Pesquisa por um determinado pais e sexo no arquivo binário não ordenado.
+     * @return total encontrado.
+	 */
+	public static long pesquisaArquivoBinario(String nomeArquivo, int pais, int sexo) throws IOException
+    {
+        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long total = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	if(p.getSexo() == sexo && p.getPais() == pais)
+            		total++;
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
+        return total;
     }
 
 	/** Ordena arquivo de longs. 
@@ -203,6 +230,9 @@ public class Arquivo {
 
 	}
     
+	/**
+	 * Ordena um array de longs que está na memória através do Merge Sort
+	 */
 	private static long[] Ordena(int n, long[] buffer, long[] tempBuff) {
 
 		for(int tamanho = 1; tamanho < n; tamanho = 2 * tamanho) {
@@ -214,6 +244,9 @@ public class Arquivo {
 		return buffer;
 	}
 	
+	/**
+	 * Etapa de merge do Merge Sort
+	 */
 	private static void Merge(long[] A, int esquerda, int direita, long fim, long[] B)
 	{
 		int i0 = esquerda;
@@ -234,5 +267,151 @@ public class Arquivo {
 				i1++;
 			}
 		}
+	}
+	
+	public static void consulta1(String nomeArquivo) throws IOException {
+		long startTimer = System.currentTimeMillis();
+		//System.out.println("pais|sexo|count(*)");
+		for(int idpais = 0; idpais < 256; idpais++){
+			for( int idsexo = 0; idsexo < 2; idsexo++){
+				long cont = pesquisaArquivoBinario(nomeArquivo, idpais, idsexo);
+				//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
+			}
+		}
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 1 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta1_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 1 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta2(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 2 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta2_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 2 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta3(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 3 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta3_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 3 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta4(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 4 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta4_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 4 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta5(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 5 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta5_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 5 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta6(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 6 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta6_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 6 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta7(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 7 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta7_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 7 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta8(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 8 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta8_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 8 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta9(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 9 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");	
+	}
+	
+	public static void consulta9_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 9 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta10(String nomeArquivo) {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 10 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	public static void consulta10_Ordenado() {
+		long startTimer = System.currentTimeMillis();
+		
+        long endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 10 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
 }
