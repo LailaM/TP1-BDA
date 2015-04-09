@@ -38,34 +38,41 @@ public class BancoDados {
     		+ "?, ?, ?, ?, ?, ?, ?"
     		+ ")";
     
+    private static final String INSERT_INTO_PESSOAS_POSTGRE = 
+    		"INSERT INTO pessoas ("
+    		+ "sexo, idade, renda, escolaridade, idioma, pais, localizador"
+    		+ ") VALUES ("
+    		+ "cast(? as bit(1)), cast(? as bit(7)), cast(? as bit(10)), cast(? as bit(2)), cast(? as bit(12)), cast(? as bit(8)), cast(? as bit(24))"
+    		+ ")";
+    
     private static final String SELECT_1 = 
-    		"SELECT pais, sexo, count(*) "
+    		"SELECT pais, sexo, COUNT(*) "
 			+ "FROM pessoas "
 			+ "GROUP BY pais, sexo;";
     private static final String SELECT_2 = 
-    		"SELECT pais, sexo, idade, count(*) "
+    		"SELECT pais, sexo, idade, COUNT(*) "
 			+ "FROM pessoas "
 			+ "GROUP BY pais, sexo , idade;";
     private static final String SELECT_3 = 
-    		"SELECT pais, sexo, avg(renda) "
+    		"SELECT pais, sexo, AVG(renda) "
 			+ "FROM pessoas "
 			+ "GROUP BY pais, sexo;";
     private static final String SELECT_4 = 
-    		"SELECT pais, sexo, avg(idade) "
+    		"SELECT pais, sexo, AVG(idade) "
 			+ "FROM pessoas "
 			+ "GROUP BY pais, sexo;";
     private static final String SELECT_5 = 
-    		"SELECT pais, sexo, count(*) "
+    		"SELECT pais, sexo, COUNT(*) "
 			+ "FROM pessoas "
 			+ "WHERE pais = 15 "
 			+ "GROUP BY pais, sexo;";
     private static final String SELECT_6 = 
-    		"SELECT pais, sexo, count(*) "
+    		"SELECT pais, sexo, COUNT(*) "
 			+ "FROM pessoas "
 			+ "WHERE pais = 15 "
 			+ "AND sexo = 1;";
     private static final String SELECT_7 = 
-    		"SELECT pais, sexo, count(*) "
+    		"SELECT pais, sexo, COUNT(*) "
 			+ "FROM pessoas "
 			+ "WHERE pais>=0 "
 			+ "AND pais<=15 "
@@ -98,7 +105,7 @@ public class BancoDados {
 			Class.forName(driver);
 			this.connectionPostgreSql = DriverManager.getConnection(servidorPostgreSql, usuario, senha); 
 			this.connectionPostgreSql.createStatement();
-			//this.connectionPostgreSql.setAutoCommit(false);
+			this.connectionPostgreSql.setAutoCommit(false);
 		}catch(Exception e){
 			System.out.println("Erro: " + e.getMessage());
 		}
@@ -197,33 +204,36 @@ public class BancoDados {
 	 */
 	public void insereBuffer(ByteBuffer buffer) throws SQLException{
 		while(buffer.hasRemaining()){
-			final PreparedStatement statement1 = connectionMysql.prepareStatement(INSERT_INTO_PESSOAS);
-			final PreparedStatement statement2 = connectionPostgreSql.prepareStatement(INSERT_INTO_PESSOAS);
-	        for ( int i = 0; i < TAM_BATCH; i++ ) {
+			final PreparedStatement statementMySql = connectionMysql.prepareStatement(INSERT_INTO_PESSOAS);
+			final PreparedStatement statementPostgre = connectionPostgreSql.prepareStatement(INSERT_INTO_PESSOAS_POSTGRE);
+	        
+			for ( int i = 0; i < TAM_BATCH; i++ ) {
 	        	Pessoa p = new Pessoa(buffer.getLong());
-	        	statement1.setLong(1, p.getSexo());
-	        	//statement2.setLong(1, p.getSexo());
-	        	statement1.setLong(2, p.getIdade());
-	        	//statement2.setLong(2, p.getIdade());
-	        	statement1.setLong(3, p.getRenda());
-	        	//statement2.setLong(3, p.getRenda());
-	        	statement1.setLong(4, p.getEscolaridade());
-	        	//statement2.setLong(4, p.getEscolaridade());
-	        	statement1.setLong(5, p.getIdioma());
-	        	//statement2.setLong(5, p.getIdioma());
-	        	statement1.setLong(6, p.getPais());
-	        	//statement2.setLong(6, p.getPais());
-	        	statement1.setLong(7, p.getLocalizador());
-	        	//statement2.setLong(7, p.getLocalizador());
-	        	statement1.addBatch();
-	        	//statement2.addBatch();
-	        	//statement2.execute();
+	        	
+	        	statementMySql.setLong(1, p.getSexo());
+	        	statementPostgre.setLong(1, p.getSexo());
+	        	statementMySql.setLong(2, p.getIdade());
+	        	statementPostgre.setLong(2, p.getIdade());
+	        	statementMySql.setLong(3, p.getRenda());
+	        	statementPostgre.setLong(3, p.getRenda());
+	        	statementMySql.setLong(4, p.getEscolaridade());
+	        	statementPostgre.setLong(4, p.getEscolaridade());
+	        	statementMySql.setLong(5, p.getIdioma());
+	        	statementPostgre.setLong(5, p.getIdioma());
+	        	statementMySql.setLong(6, p.getPais());
+	        	statementPostgre.setLong(6, p.getPais());
+	        	statementMySql.setLong(7, p.getLocalizador());
+	        	statementPostgre.setLong(7, p.getLocalizador());
+	        	
+	        	statementMySql.addBatch();
+	        	statementPostgre.addBatch();
 	        }
-	        statement1.executeBatch();
-	        //statement2.executeBatch();
-	        //connectionPostgreSql.commit();
-	        statement1.close();
-	        statement2.close();
+			statementMySql.executeBatch();
+			statementPostgre.executeBatch();
+	        connectionPostgreSql.commit();
+	        
+	        statementMySql.close();
+	        statementPostgre.close();
 		}
 	}
 	

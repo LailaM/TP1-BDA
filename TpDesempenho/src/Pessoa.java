@@ -9,6 +9,9 @@ public class Pessoa {
 	long pais;
 	long localizador;
 	
+	/**
+	 * Cria um tipo "Pessoa" de maneira aleatória.
+	 */
 	public Pessoa(){
 		Random random = new Random();
 		// Gera numeros aleatórios e elimina-se o sinal.
@@ -21,6 +24,9 @@ public class Pessoa {
 		this.localizador = ((random.nextLong()<< 1) >>> 1) % 16777216;
 	}
 	
+	/**
+	 * Cria um tipo "Pessoa" a partir de um numero binario passado como parametro.
+	 */
 	public Pessoa(long pessoaBinario){
 		long pessoa = pessoaBinario;
 		if(pessoaBinario < 0){
@@ -38,6 +44,11 @@ public class Pessoa {
 		this.localizador = pessoa & 16777215L; // mascara com 24 1s
 	}
 	
+	/**
+	 * Retorna o numero binario que representa a pessoa. 
+	 * O numero binario é representado por um long.
+	 * @return numero binario de 64 bits
+	 */
 	public long getPessoaBinario(){
 		long pessoaBinario = 0L;
 		pessoaBinario = pessoaBinario | (this.pais << 55);
@@ -51,24 +62,51 @@ public class Pessoa {
 		else return -1*pessoaBinario;
 	}
 	
+	/**
+	 * Retorna o sexo de uma pessoa.
+	 */
 	public long getSexo(){
 		return this.sexo;
 	}
+	
+	/**
+	 * Retorna a idade de uma pessoa.
+	 */
 	public long getIdade(){
 		return this.idade;
 	}
+	
+	/**
+	 * Retorna a renda de uma pessoa.
+	 */
 	public long getRenda(){
 		return this.renda;
 	}
+	
+	/**
+	 * Retorna a escolaridade de uma pessoa.
+	 */
 	public long getEscolaridade(){
 		return this.escolaridade;
 	}
+	
+	/**
+	 * Retorna o idioma de uma pessoa.
+	 */
 	public long getIdioma(){
 		return this.idioma;
 	}
+	
+	/**
+	 * Retorna o pais de uma pessoa.
+	 */
 	public long getPais(){
 		return this.pais;
 	}
+	
+	/**
+	 * Retorna o numero localizador de uma pessoa.
+	 */
 	public long getLocalizador(){
 		return this.localizador;
 	}

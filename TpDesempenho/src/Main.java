@@ -57,9 +57,9 @@ public class Main {
 		        System.out.println("Criando arquivo binario ordenado...");
 		        
 		        //ordena arquivo que foi gerado
-				Arquivo.criaArquivosTemp();
-				Arquivo.escreveArquivoBinarioOrdenado(nomeBanco);
-				Arquivo.apagaArquivosTemp();
+		        ArquivoOrdenado.criaArquivosTemp();
+				ArquivoOrdenado.escreveArquivo(nomeBanco);
+				ArquivoOrdenado.apagaArquivosTemp();
 				
 				System.out.println("Arquivo foi criado com sucesso!");
 				break;
@@ -86,52 +86,52 @@ public class Main {
 				case 'a': 
 					censo.consulta1();
 					Arquivo.consulta1(nomeBanco);
-					Arquivo.consulta1_Ordenado();
+					ArquivoOrdenado.consulta1();
 					break;
 				case 'b': 
 					censo.consulta2();
 					Arquivo.consulta2(nomeBanco);
-					Arquivo.consulta2_Ordenado();
+					ArquivoOrdenado.consulta2();
 					break;
 				case 'c': 
 					censo.consulta3();
 					Arquivo.consulta3(nomeBanco);
-					Arquivo.consulta3_Ordenado();
+					ArquivoOrdenado.consulta3();
 					break;
 				case 'd': 
 					censo.consulta4();
 					Arquivo.consulta4(nomeBanco);
-					Arquivo.consulta4_Ordenado();
+					ArquivoOrdenado.consulta4();
 					break;
 				case 'e': 
 					censo.consulta5();
 					Arquivo.consulta5(nomeBanco);
-					Arquivo.consulta5_Ordenado();
+					ArquivoOrdenado.consulta5();
 					break;
 				case 'f': 
 					censo.consulta6();
 					Arquivo.consulta6(nomeBanco);
-					Arquivo.consulta6_Ordenado();
+					ArquivoOrdenado.consulta6();
 					break;
 				case 'g': 
 					censo.consulta7();
 					Arquivo.consulta7(nomeBanco);
-					Arquivo.consulta7_Ordenado();
+					ArquivoOrdenado.consulta7();
 					break;
 				case 'h': 
 					censo.consulta8();
 					Arquivo.consulta8(nomeBanco);
-					Arquivo.consulta8_Ordenado();
+					ArquivoOrdenado.consulta8();
 					break;
 				case 'i': 
 					censo.consulta9();
 					Arquivo.consulta9(nomeBanco);
-					Arquivo.consulta9_Ordenado();
+					ArquivoOrdenado.consulta9();
 					break;
 				case 'j': 
 					censo.consulta10();
 					Arquivo.consulta10(nomeBanco);
-					Arquivo.consulta10_Ordenado();
+					ArquivoOrdenado.consulta10();
 					break;
 				default: 
 					System.out.println("Esta opcao nao existe.");
