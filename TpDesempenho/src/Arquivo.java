@@ -186,12 +186,12 @@ public class Arquivo {
 	 */
 	public static void consulta2(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
-		//System.out.println("pais|sexo|count(*)");
+		//System.out.println("pais|sexo|idade|count(*)");
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				for( int ididade = 0; ididade < 127; ididade++){
 					long cont = pesquisaArquivoBinario(nomeArquivo, idpais, idsexo, ididade);
-					//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
+					//System.out.println(idpais +"|"+ idsexo +"|"+ ididade +"|"+ cont);
 				}
 			}
 		}
@@ -255,7 +255,7 @@ public class Arquivo {
 		//System.out.println("pais|sexo|count(*)");
 		for( int idsexo = 0; idsexo < 2; idsexo++){
 			long cont = pesquisaArquivoBinario(nomeArquivo, 15, idsexo);
-			//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
+			//System.out.println(15 +"|"+ idsexo +"|"+ cont);
 		}
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 5 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
@@ -274,7 +274,7 @@ public class Arquivo {
 		long startTimer = System.currentTimeMillis();
 		//System.out.println("pais|sexo|count(*)");
 		long cont = pesquisaArquivoBinario(nomeArquivo, 15, 1);
-		//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
+		//System.out.println(15 +"|"+ 1 +"|"+ cont);
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 6 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}

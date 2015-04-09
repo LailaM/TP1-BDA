@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -81,6 +82,9 @@ public class BancoDados {
     private static final String SELECT_9 = "";
     private static final String SELECT_10 = "";
 	
+    /**
+     * Conecta ao banco MySql
+     */
 	public void conectaMySql() {
 		String servidorMySql = "jdbc:mysql://localhost/?rewriteBatchedStatements=true";
 		String usuario = "root";
@@ -96,6 +100,9 @@ public class BancoDados {
 		
 	}
 
+	/**
+     * Conecta ao banco PostgreSql
+     */
 	public void conectaPostgreSql() {
 		String servidorPostgreSql = "jdbc:postgresql://localhost/censo?rewriteBatchedStatements=true";
 		String usuario = "postgres";
@@ -112,6 +119,9 @@ public class BancoDados {
 		
 	}
 	
+	/**
+     * Verifica se ambas as conexoes foram realizadas com sucesso.
+     */
 	public boolean estaoConectados() {
 		if(this.connectionMysql != null && this.connectionPostgreSql != null){
 			return true;
@@ -120,6 +130,9 @@ public class BancoDados {
 		}
 	}
 
+	/**
+     * Desconecta o banco MySql
+     */
 	public void desconectarMySql() {
 		try{
 			this.connectionMysql.close();
@@ -129,6 +142,9 @@ public class BancoDados {
 		
 	}
 	
+	/**
+     * Desconecta o banco PostgreSql
+     */
 	public void desconectarPostgreSql() {
 		try{
 			this.connectionPostgreSql.close();
@@ -138,6 +154,9 @@ public class BancoDados {
 		
 	}
 	
+	/**
+     * Cria a base de dados censo, e a tabela pessoas para o banco de dados MySql
+     */
 	public void inicializarMySql() throws SQLException {
 		criaBancoMySql();
 		usaBancoMySql();
@@ -145,6 +164,10 @@ public class BancoDados {
 		criaTabelaPessoaMySql();
 	}
 	
+	/**
+     * Cria a tabela pessoas para o banco de dados PostgreSql.
+     * A base de dados censo deve ser criada fora do java.
+     */
 	public void inicializarPostgreSql() throws SQLException {
 		//diferente do mySql, o banco precisa ser criado fora do java.
 		//utilizacao do banco censo foi determinada durante a conexao.
@@ -152,18 +175,27 @@ public class BancoDados {
 		criaTabelaPessoaPostgreSql();
 	}
 	
+	/**
+     * Cria a base de dados censo para o banco de dados MySql
+     */
 	public void criaBancoMySql() throws SQLException{
 		final PreparedStatement statement = connectionMysql.prepareStatement(CREATE_DATABASE_CENSO);
         statement.execute();
         statement.close();
 	}
 	
+	/**
+     * Usa a base de dados censo.
+     */
 	public void usaBancoMySql() throws SQLException{
 		final PreparedStatement statement = connectionMysql.prepareStatement("USE censo;");
         statement.execute();
         statement.close();
 	}
 	
+	/**
+     * Cria tabela pessoas para o banco de dados MySql.
+     */
 	public void criaTabelaPessoaMySql() throws SQLException{
 		COLUMN_ID = "id bigint NOT NULL auto_increment,";
 		final PreparedStatement statement = connectionMysql.prepareStatement(
@@ -176,6 +208,9 @@ public class BancoDados {
         statement.close();
 	}
 	
+	/**
+     * Cria tabela pessoas para o banco de dados PostgreSql.
+     */
 	public void criaTabelaPessoaPostgreSql() throws SQLException{
 		COLUMN_ID = "id SERIAL NOT NULL,";
 		final PreparedStatement statement = connectionPostgreSql.prepareStatement(
@@ -187,12 +222,18 @@ public class BancoDados {
         statement.close();
 	}
 	
+	/**
+     * Deleta a tabela pessoas do banco de dados MySql.
+     */
 	public void deletaTabelaPessoaMySql() throws SQLException{
 		final PreparedStatement statement = connectionMysql.prepareStatement(DROP_TABLE_PESSOA);
         statement.execute();
         statement.close();
 	}
 	
+	/**
+     * Deleta a tabela pessoas do banco de dados PostgreSql.
+     */
 	public void deletaTabelaPessoaPostgreSql() throws SQLException{
 		final PreparedStatement statement = connectionPostgreSql.prepareStatement(DROP_TABLE_PESSOA);
         statement.execute();
@@ -237,113 +278,277 @@ public class BancoDados {
 		}
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, count(*) 
+	 * FROM pessoas 
+	 * GROUP BY pais, sexo;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta1() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_1);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_1);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 1 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_1);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 1 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, idade, count(*) 
+	 * FROM pessoas 
+	 * GROUP BY pais, sexo , idade;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta2() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_2);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_2);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 2 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_2);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 2 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
+		
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, avg(renda) 
+	 * FROM pessoas 
+	 * GROUP BY pais, sexo;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta3() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_3);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_3);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 3 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_3);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 3 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, avg(idade) 
+	 * FROM pessoas 
+	 * GROUP BY pais, sexo;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta4() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_4);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_4);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 4 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_4);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 4 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, count(*) 
+	 * FROM pessoas 
+	 * WHERE pais = 15 
+	 * GROUP BY pais, sexo;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta5() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_5);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_5);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 5 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_5);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 5 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, count(*) 
+	 * FROM pessoas 
+	 * WHERE pais = 15 
+	 * AND sexo = 1;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta6() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_6);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_6);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 6 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_6);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 6 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT pais, sexo, count(*) 
+	 * FROM pessoas 
+	 * WHERE pais>=0 AND pais<=15 
+	 * GROUP BY pais, sexo;
+	 * para ambos os bancos.
+	 * @throws IOException
+	 */
 	public void consulta7() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_7);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_7);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 7 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_7);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 7 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT 
+	 * FROM pessoas 
+	 * WHERE 
+	 * GROUP 
+	 * para ambos os bancos.
+	 */
 	public void consulta8() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_8);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_8);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 8 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_8);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 8 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT 
+	 * FROM pessoas 
+	 * WHERE 
+	 * GROUP 
+	 * para ambos os bancos.
+	 */
 	public void consulta9() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_9);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_9);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 9 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_9);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 9 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
+	/**
+	 * Realiza a consulta 
+	 * SELECT 
+	 * FROM pessoas 
+	 * WHERE 
+	 * GROUP 
+	 * para ambos os bancos.
+	 */
 	public void consulta10() throws SQLException{
+		//MySql
 		usaBancoMySql();
 		long startTimer = System.currentTimeMillis();
-		final PreparedStatement statement = connectionMysql.prepareStatement(SELECT_10);
-        statement.execute();
-        statement.close();
+		final PreparedStatement statementMySql = connectionMysql.prepareStatement(SELECT_10);
+		statementMySql.execute();
+		statementMySql.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 10 no MySql: " + (endTimer - startTimer) + " milisegundos");
 		
+		//Postgre
+		startTimer = System.currentTimeMillis();
+		final PreparedStatement statementPostgre = connectionMysql.prepareStatement(SELECT_10);
+		statementPostgre.execute();
+		statementPostgre.close();
+		endTimer = System.currentTimeMillis();
+		System.out.println("Tempo da consulta 10 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
 	}
 }
