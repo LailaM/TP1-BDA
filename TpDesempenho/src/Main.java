@@ -34,22 +34,26 @@ public class Main {
 				censo.inicializarPostgreSql();
 				
 				//abre arquivo binario para escrita
-				Arquivo.abreArquivoBinario(nomeBanco);
+				Arquivo.abre(nomeBanco);
 				
 				System.out.println("Criando Banco e arquivo binario...");
 				
+				int continua = '1';
+				
 				//escreve dados no arquivo binário e no banco de dados
-		        for(int i = 0; i < Arquivo.NUM_BUFFERS; i++)
+		        for(int i = 0; i < Arquivo.NUM_BUFFERS && continua == '1'; i++)
 		        {
 		        	ByteBuffer buffer = setBuffer();
-		        	Arquivo.imprimeBufferArquivoBinario(buffer);
+		        	Arquivo.imprimeBuffer(buffer);
 		        	censo.insereBuffer(buffer);
+		        	System.out.println("Deseja continuar inserindo?");
+		        	continua = input.next().charAt(0);
 		        }
 				
 		        System.out.println("Banco e arquivo binario foram criados com sucesso!");
 		        
 		        //fecha arquivo
-		        Arquivo.fechaArquivoBinario();
+		        Arquivo.fecha();
 		        
 		        //lê arquivo que acabou de ser gerado e imprime dados na tela
 		        //Arquivo.leArquivoBinario(nomeBanco);

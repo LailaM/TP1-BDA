@@ -13,9 +13,9 @@ import java.util.Arrays;
 
 
 public class ArquivoOrdenado {
-	public final static int TAMANHO_MEM = 100;//10000000;
-	public final static int NUM_BUFFERS = 6;//600;
-	public final static long TAMANHO_ARQ = 600;//6000000000L;
+	public final static int TAMANHO_MEM = 1000000;//100;
+	public final static int NUM_BUFFERS = 6000;//6;
+	public final static long TAMANHO_ARQ = 6000000000L;//600;
 	public final static long INFINITO = Long.MAX_VALUE;
 	
 	public static RandomAccessFile arquivo = null;

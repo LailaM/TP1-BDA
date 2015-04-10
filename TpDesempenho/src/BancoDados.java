@@ -11,7 +11,7 @@ public class BancoDados {
 	private Connection connectionPostgreSql = null;
 	private ResultSet resultset = null;
 	
-	public static final int TAM_BATCH = 100;//10000;
+	public static final int TAM_BATCH = 1000; //100;
 
 	private static final String CREATE_DATABASE_CENSO = 
 			"CREATE DATABASE IF NOT EXISTS censo;";
@@ -78,9 +78,21 @@ public class BancoDados {
 			+ "WHERE pais>=0 "
 			+ "AND pais<=15 "
 			+ "GROUP BY pais, sexo;";
-    private static final String SELECT_8 = "";
-    private static final String SELECT_9 = "";
-    private static final String SELECT_10 = "";
+    private static final String SELECT_8 = 
+    		"SELECT pais, escolaridade"
+    		+ "FROM pessoas "
+			+ "WHERE sexo=0 "
+			+ "GROUP BY pais"
+			+ "ORDER BY escolaridade;";
+    private static final String SELECT_9 = 
+    		"SELECT pais, idade, renda"
+    		+ "FROM pessoas "
+			+ "WHERE idade>=18 "
+			+ "ORDER BY renda DESC;";
+    private static final String SELECT_10 = 
+    		"SELECT pais, idioma, COUNT(*)"
+    		+ "FROM pessoas "
+			+ "GROUP BY pais, idioma;";
 	
     /**
      * Conecta ao banco MySql

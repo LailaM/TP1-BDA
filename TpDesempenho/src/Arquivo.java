@@ -6,9 +6,9 @@ import java.nio.channels.FileChannel;
 
 public class Arquivo {
 	
-	public final static int TAMANHO_MEM = 100;//10000000;
-	public final static int NUM_BUFFERS = 6;//600;
-	public final static long TAMANHO_ARQ = 600;//6000000000L;
+	public final static int TAMANHO_MEM = 1000000;//100;
+	public final static int NUM_BUFFERS = 6000;//6;
+	public final static long TAMANHO_ARQ = 6000000000L;//600;
 	public final static long INFINITO = Long.MAX_VALUE;
 	
 	public static RandomAccessFile arquivo = null;
@@ -17,7 +17,7 @@ public class Arquivo {
 	/**
      * Abre um arquivo para escrita usando nio.
      */
-	public static void abreArquivoBinario(String nomeArquivo) throws IOException
+	public static void abre(String nomeArquivo) throws IOException
     {
         arquivo = new RandomAccessFile (nomeArquivo, "rw");
         aChannel = arquivo.getChannel();
@@ -26,7 +26,7 @@ public class Arquivo {
 	/**
 	 * Fecha o arquivo que foi aberto para escrita usando nio.
 	 */
-    public static void fechaArquivoBinario() throws IOException
+    public static void fecha() throws IOException
     {
         aChannel.close();
         arquivo.close();
@@ -35,7 +35,7 @@ public class Arquivo {
     /**
 	 * Imprime um buffer de bytes no arquivo aberto para escrita
 	 */
-    public static void imprimeBufferArquivoBinario(ByteBuffer buffer) throws IOException
+    public static void imprimeBuffer(ByteBuffer buffer) throws IOException
     {
     	aChannel.write(buffer);
     	buffer.rewind();
@@ -44,7 +44,7 @@ public class Arquivo {
 	/**
      * Le uma lista de longs em um arquivo usando nio e imprime o resultado na tela.
      */
-	public static void leArquivoBinario(String nomeArquivo) throws IOException
+	public static void leArquivo(String nomeArquivo) throws IOException
     {
         RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
         FileChannel aChannel = arquivo.getChannel();
@@ -75,7 +75,7 @@ public class Arquivo {
      * Pesquisa por um determinado pais e sexo no arquivo binario não ordenado.
      * @return total encontrado.
 	 */
-	public static long pesquisaArquivoBinario(String nomeArquivo, int pais, int sexo) throws IOException
+	public static long pesquisa(String nomeArquivo, int pais, int sexo) throws IOException
     {
         RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
         FileChannel aChannel = arquivo.getChannel();
@@ -101,7 +101,7 @@ public class Arquivo {
      * Pesquisa por um determinado pais, sexo e idade no arquivo binario não ordenado.
      * @return total encontrado.
 	 */
-	public static long pesquisaArquivoBinario(String nomeArquivo, int pais, int sexo, int idade) throws IOException
+	public static long pesquisa(String nomeArquivo, int pais, int sexo, int idade) throws IOException
     {
         RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
         FileChannel aChannel = arquivo.getChannel();
@@ -124,11 +124,89 @@ public class Arquivo {
     }
 	
 	/**
+     * Pesquisa por um determinado pais, sexo e idade no arquivo binario não ordenado.
+     * @return total encontrado.
+	 */
+	public static int pesquisa2(String nomeArquivo, int pais, int escolaridade) throws IOException
+    {
+        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	if(p.getEscolaridade() == escolaridade && p.getPais() == pais)
+            		cont++;
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
+        return cont;
+    }
+	
+	/**
+     * Pesquisa por um determinado pais, sexo e idade no arquivo binario não ordenado.
+     * @return total encontrado.
+	 */
+	public static int pesquisa3(String nomeArquivo, int pais, int idade, int renda) throws IOException
+    {
+        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	if(p.getIdade() == idade && p.getPais() == pais && p.getRenda() == renda)
+            		cont++;
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
+        return cont;
+    }
+	
+	/**
+     * Pesquisa por um determinado pais, sexo e idade no arquivo binario não ordenado.
+     * @return total encontrado.
+	 */
+	public static int pesquisa4(String nomeArquivo, int pais, int idioma) throws IOException
+    {
+        RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	if(p.getIdioma() == idioma && p.getPais() == pais)
+            		cont++;
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
+        return cont;
+    }
+	
+	/**
      * Pesquisa por um determinado pais e sexo no arquivo binario não ordenado e 
      * calcula a media dos elementos da coluna passada como parâmetro.
      * @return media dos elementos da coluna.
 	 */
-	public static long mediaArquivoBinario(String nomeArquivo, int pais, int sexo, int coluna) throws IOException
+	public static long calculaMedia(String nomeArquivo, int pais, int sexo, int coluna) throws IOException
     {
         RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
         FileChannel aChannel = arquivo.getChannel();
@@ -168,7 +246,7 @@ public class Arquivo {
 		//System.out.println("pais|sexo|count(*)");
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
-				long cont = pesquisaArquivoBinario(nomeArquivo, idpais, idsexo);
+				long cont = pesquisa(nomeArquivo, idpais, idsexo);
 				//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
 			}
 		}
@@ -190,7 +268,7 @@ public class Arquivo {
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				for( int ididade = 0; ididade < 127; ididade++){
-					long cont = pesquisaArquivoBinario(nomeArquivo, idpais, idsexo, ididade);
+					long cont = pesquisa(nomeArquivo, idpais, idsexo, ididade);
 					//System.out.println(idpais +"|"+ idsexo +"|"+ ididade +"|"+ cont);
 				}
 			}
@@ -212,7 +290,7 @@ public class Arquivo {
 		//System.out.println("pais|sexo|avg(salario)");
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
-				long avg = mediaArquivoBinario(nomeArquivo, idpais, idsexo, 4);
+				long avg = calculaMedia(nomeArquivo, idpais, idsexo, 4);
 				//System.out.println(idpais +"|"+ idsexo +"|"+ avg);
 			}
 		}
@@ -233,7 +311,7 @@ public class Arquivo {
 		//System.out.println("pais|sexo|avg(idade)");
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
-				long avg = mediaArquivoBinario(nomeArquivo, idpais, idsexo, 3);
+				long avg = calculaMedia(nomeArquivo, idpais, idsexo, 3);
 				//System.out.println(idpais +"|"+ idsexo +"|"+ avg);
 			}
 		}
@@ -254,7 +332,7 @@ public class Arquivo {
 		long startTimer = System.currentTimeMillis();
 		//System.out.println("pais|sexo|count(*)");
 		for( int idsexo = 0; idsexo < 2; idsexo++){
-			long cont = pesquisaArquivoBinario(nomeArquivo, 15, idsexo);
+			long cont = pesquisa(nomeArquivo, 15, idsexo);
 			//System.out.println(15 +"|"+ idsexo +"|"+ cont);
 		}
         long endTimer = System.currentTimeMillis();
@@ -273,7 +351,7 @@ public class Arquivo {
 	public static void consulta6(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
 		//System.out.println("pais|sexo|count(*)");
-		long cont = pesquisaArquivoBinario(nomeArquivo, 15, 1);
+		long cont = pesquisa(nomeArquivo, 15, 1);
 		//System.out.println(15 +"|"+ 1 +"|"+ cont);
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 6 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
@@ -293,7 +371,7 @@ public class Arquivo {
 		//System.out.println("pais|sexo|count(*)");
 		for(int idpais = 0; idpais <= 15; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
-				long cont = pesquisaArquivoBinario(nomeArquivo, idpais, idsexo);
+				long cont = pesquisa(nomeArquivo, idpais, idsexo);
 				//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
 			}
 		}
@@ -303,45 +381,68 @@ public class Arquivo {
 	
 	/**
 	 * Realiza a consulta 
-	 * SELECT 
-	 * FROM pessoas 
-	 * WHERE 
-	 * GROUP 
+    		"SELECT pais, escolaridade"
+    		+ "FROM pessoas "
+			+ "WHERE sexo=0 "
+			+ "GROUP BY pais"
+			+ "ORDER BY escolaridade;";
 	 * @param nomeArquivo
+	 * @throws IOException 
 	 */
-	public static void consulta8(String nomeArquivo) {
+	public static void consulta8(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|escolaridade");
+		for(int idpais = 0; idpais < 256; idpais++){
+			for( int idesc = 0; idesc < 4; idesc++){
+				int cont = pesquisa2(nomeArquivo, idpais, idesc);
+				//if(cont >=0)System.out.println(idpais +"|"+ idesc );
+			}
+		}
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 8 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
 	
 	/**
 	 * Realiza a consulta 
-	 * SELECT 
-	 * FROM pessoas 
-	 * WHERE 
-	 * GROUP 
+    		"SELECT pais, idade, renda"
+    		+ "FROM pessoas "
+			+ "WHERE idade>=18 "
+			+ "ORDER BY renda DESC;";
 	 * @param nomeArquivo
+	 * @throws IOException 
 	 */
-	public static void consulta9(String nomeArquivo) {
+	public static void consulta9(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|idade|renda");
+		for(int idpais = 0; idpais < 256; idpais++){
+			for( int ididade = 18; ididade < 128; ididade++){
+				for( int idrenda = 1023; idrenda >= 0; idrenda--){
+					int cont = pesquisa3(nomeArquivo, idpais, ididade, idrenda);
+					//if(cont >=0)System.out.println(idpais +"|"+ ididade + "|" +  idrenda);
+				}
+			}
+		}
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 9 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");	
 	}
 	
 	/**
 	 * Realiza a consulta 
-	 * SELECT 
-	 * FROM pessoas 
-	 * WHERE 
-	 * GROUP 
+    		"SELECT pais, idioma, COUNT(*)"
+    		+ "FROM pessoas "
+			+ "GROUP BY pais, idioma;";
 	 * @param nomeArquivo
+	 * @throws IOException 
 	 */
-	public static void consulta10(String nomeArquivo) {
+	public static void consulta10(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|idioma");
+		for(int idpais = 0; idpais < 256; idpais++){
+			for( int ididioma = 0; ididioma < 4096; ididioma++){
+				int cont = pesquisa4(nomeArquivo, idpais, ididioma);
+				//System.out.println(idpais +"|"+ ididade + "|" + cont);
+			}
+		}
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 10 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
