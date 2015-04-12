@@ -1,7 +1,8 @@
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +10,6 @@ import java.sql.SQLException;
 public class BancoDados {
 	private Connection connectionMysql = null;
 	private Connection connectionPostgreSql = null;
-	private ResultSet resultset = null;
 	
 	public static final int TAM_BATCH = 1000; //100;
 
@@ -79,19 +79,25 @@ public class BancoDados {
 			+ "AND pais<=15 "
 			+ "GROUP BY pais, sexo;";
     private static final String SELECT_8 = 
-    		"SELECT pais, escolaridade"
+    		"SELECT pais, escolaridade, COUNT(*) "
     		+ "FROM pessoas "
 			+ "WHERE sexo=0 "
-			+ "GROUP BY pais"
+			+ "GROUP BY pais, escolaridade "
 			+ "ORDER BY escolaridade;";
     private static final String SELECT_9 = 
-    		"SELECT pais, idade, renda"
+    		"SELECT pais, idade, renda, COUNT(*) "
     		+ "FROM pessoas "
 			+ "WHERE idade>=18 "
+    		+ "AND idade < 65 "
+			+ "AND pais = 115 "
+    		+ "AND renda >= 1000 "
+			+ "GROUP BY pais, idade, renda "
 			+ "ORDER BY renda DESC;";
     private static final String SELECT_10 = 
-    		"SELECT pais, idioma, COUNT(*)"
+    		"SELECT pais, idioma, COUNT(*) "
     		+ "FROM pessoas "
+    		+ "WHERE pais >= 200 "
+    		+ "AND idioma >= 4000 "
 			+ "GROUP BY pais, idioma;";
 	
     /**
@@ -562,5 +568,54 @@ public class BancoDados {
 		statementPostgre.close();
 		endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 10 no PostgreSql: " + (endTimer - startTimer) + " milisegundos");
+	}
+	
+	/**
+	 * Carrega os dados de um arquivo binario
+	 */
+	public void carregaDeArquivo(String nomeArquivo) throws IOException, SQLException{
+		RandomAccessFile arquivo = new RandomAccessFile (nomeArquivo, "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * Arquivo.TAMANHO_MEM);
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	final PreparedStatement statementMySql = connectionMysql.prepareStatement(INSERT_INTO_PESSOAS);
+    			final PreparedStatement statementPostgre = connectionPostgreSql.prepareStatement(INSERT_INTO_PESSOAS_POSTGRE);
+    	        
+    			for ( int i = 0; i < TAM_BATCH; i++ ) {
+    	        	Pessoa p = new Pessoa(buffer.getLong());
+    	        	
+    	        	statementMySql.setLong(1, p.getSexo());
+    	        	statementPostgre.setLong(1, p.getSexo());
+    	        	statementMySql.setLong(2, p.getIdade());
+    	        	statementPostgre.setLong(2, p.getIdade());
+    	        	statementMySql.setLong(3, p.getRenda());
+    	        	statementPostgre.setLong(3, p.getRenda());
+    	        	statementMySql.setLong(4, p.getEscolaridade());
+    	        	statementPostgre.setLong(4, p.getEscolaridade());
+    	        	statementMySql.setLong(5, p.getIdioma());
+    	        	statementPostgre.setLong(5, p.getIdioma());
+    	        	statementMySql.setLong(6, p.getPais());
+    	        	statementPostgre.setLong(6, p.getPais());
+    	        	statementMySql.setLong(7, p.getLocalizador());
+    	        	statementPostgre.setLong(7, p.getLocalizador());
+    	        	
+    	        	statementMySql.addBatch();
+    	        	statementPostgre.addBatch();
+    	        }
+    			statementMySql.executeBatch();
+    			statementPostgre.executeBatch();
+    	        connectionPostgreSql.commit();
+    	        
+    	        statementMySql.close();
+    	        statementPostgre.close();
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
 	}
 }

@@ -1,0 +1,24 @@
+import java.io.IOException;
+
+public class Main {
+
+	public static void main(String[] args) throws IOException {
+		// TODO Auto-generated method stub
+		
+		String nomeBanco = "./Banco.bin";
+		BDMySql censo = new BDMySql();
+		censo.conectar();
+		if(censo.estaConectado()){
+			Arquivo.escreveArquivoBinario(nomeBanco);
+			Arquivo.criaArquivosTemp();
+			Arquivo.escreveArquivoBinarioOrdenado(nomeBanco);
+			Arquivo.apagaArquivosTemp();
+			//Arquivo.leArquivoBinario(nomeBanco);
+			censo.desconectar();
+		}else{
+			System.out.println("Não foi possível conectar ao banco");
+		}
+
+		
+	}
+}

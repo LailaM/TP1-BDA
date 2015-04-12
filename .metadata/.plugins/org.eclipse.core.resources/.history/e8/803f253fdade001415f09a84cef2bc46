@@ -1,0 +1,170 @@
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+public class Main {
+
+	private static Scanner input;
+
+	public static void main(String[] args) throws IOException, SQLException {
+		
+		String nomeBanco = "./Banco.bin";
+		
+		//cria banco de dados e abre uma conexao
+		BancoDados censo = new BancoDados();
+		censo.conectaMySql();
+		censo.conectaPostgreSql();
+		
+		if(censo.estaoConectados()){
+			//Menu inicial
+			System.out.println("O que voce deseja fazer?");
+			System.out.println("1.) Criar novo banco.");
+			System.out.println("2.) Pesquisar no banco já existente.");
+			
+			input = new Scanner(System.in);
+			
+			int opt;
+			opt = input.next().charAt(0);
+			
+			switch(opt){
+			case '1':
+				//cria novo banco mysql e postgre
+				censo.inicializarMySql();
+				censo.inicializarPostgreSql();
+				
+				//abre arquivo binario para escrita
+				Arquivo.abre(nomeBanco);
+				
+				System.out.println("Criando Banco e arquivo binario...");
+				
+				int continua = '1';
+				
+				//escreve dados no arquivo binário e no banco de dados
+		        for(int i = 0; i < Arquivo.NUM_BUFFERS && continua == '1'; i++)
+		        {
+		        	ByteBuffer buffer = setBuffer();
+		        	Arquivo.imprimeBuffer(buffer);
+		        	censo.insereBuffer(buffer);
+		        	continua = input.next().charAt(0);
+		        }
+				
+		        System.out.println("Banco e arquivo binario foram criados com sucesso!");
+		        
+		        //fecha arquivo
+		        Arquivo.fecha();
+		        
+		        //lê arquivo que acabou de ser gerado e imprime dados na tela
+		        //Arquivo.leArquivoBinario(nomeBanco);
+		        
+		        System.out.println("Criando arquivo binario ordenado...");
+		        
+		        //ordena arquivo que foi gerado
+		        ArquivoOrdenado.criaArquivosTemp();
+				ArquivoOrdenado.escreveArquivo(nomeBanco);
+				ArquivoOrdenado.apagaArquivosTemp();
+				
+				System.out.println("Arquivo foi criado com sucesso!");
+				break;
+			case '2': 
+				//Menu de pesquisa
+				System.out.println("Selecione uma pesquisa?");
+				//Opcoes obrigatorias
+				System.out.println("a.) SELECT pais, sexo, count(*) FROM pessoas GROUP BY pais, sexo;");
+				System.out.println("b.) SELECT pais, sexo, idade, count(*) FROM pessoas GROUP BY pais, sexo , idade;");
+				System.out.println("c.) SELECT pais, sexo, avg(salario) FROM pessoas GROUP BY pais, sexo;");
+				System.out.println("d.) SELECT pais, sexo, avg(idade) FROM pessoas GROUP BY pais, sexo;");
+				System.out.println("e.) SELECT pais, sexo, count(*) FROM pessoas WHERE pais = 15 GROUP BY pais, sexo;");
+				System.out.println("f.) SELECT pais, sexo, count(*) FROM pessoas WHERE pais = 15 AND sexo = 1;");
+				System.out.println("g.) SELECT pais, sexo, count(*) FROM pessoas WHERE pais>=0 AND pais<=15 GROUP BY pais, sexo;");
+				//Opcoes extras
+				System.out.println("h.) ");
+				System.out.println("i.) ");
+				System.out.println("j.) ");
+				
+				int opt2;
+				opt2 = input.next().charAt(0);
+
+				switch(opt2){
+				case 'a': 
+					censo.consulta1();
+					Arquivo.consulta1(nomeBanco);
+					ArquivoOrdenado.consulta1();
+					break;
+				case 'b': 
+					censo.consulta2();
+					Arquivo.consulta2(nomeBanco);
+					ArquivoOrdenado.consulta2();
+					break;
+				case 'c': 
+					censo.consulta3();
+					Arquivo.consulta3(nomeBanco);
+					ArquivoOrdenado.consulta3();
+					break;
+				case 'd': 
+					censo.consulta4();
+					Arquivo.consulta4(nomeBanco);
+					ArquivoOrdenado.consulta4();
+					break;
+				case 'e': 
+					censo.consulta5();
+					Arquivo.consulta5(nomeBanco);
+					ArquivoOrdenado.consulta5();
+					break;
+				case 'f': 
+					censo.consulta6();
+					Arquivo.consulta6(nomeBanco);
+					ArquivoOrdenado.consulta6();
+					break;
+				case 'g': 
+					censo.consulta7();
+					Arquivo.consulta7(nomeBanco);
+					ArquivoOrdenado.consulta7();
+					break;
+				case 'h': 
+					censo.consulta8();
+					Arquivo.consulta8(nomeBanco);
+					ArquivoOrdenado.consulta8();
+					break;
+				case 'i': 
+					censo.consulta9();
+					Arquivo.consulta9(nomeBanco);
+					ArquivoOrdenado.consulta9();
+					break;
+				case 'j': 
+					censo.consulta10();
+					Arquivo.consulta10(nomeBanco);
+					ArquivoOrdenado.consulta10();
+					break;
+				default: 
+					System.out.println("Esta opcao nao existe.");
+					break;
+				}
+				break;
+			default: 
+				System.out.println("Esta opcao nao existe.");
+				break;
+			}
+			
+			//desconecta banco de dados
+			censo.desconectarMySql();
+			censo.desconectarPostgreSql();
+		}else{
+			System.out.println("Não foi possível conectar ao banco");
+		}
+
+	}
+	
+	/**
+	 * Carrega buffer de bytes com os dados de uma pessoa
+	 */
+	private static ByteBuffer setBuffer() {
+        ByteBuffer buffer = ByteBuffer.allocate(8 * Arquivo.TAMANHO_MEM);
+        while (buffer.hasRemaining()) {
+			Pessoa p = new Pessoa();
+			buffer.putLong(p.getPessoaBinario());
+		}
+        buffer.rewind();
+        return buffer;
+    }
+}

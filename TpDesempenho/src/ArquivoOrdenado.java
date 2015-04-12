@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -170,10 +171,16 @@ public class ArquivoOrdenado {
 		/* enquanto existir elementos na lista da esquerda e/ou direita */
 		for (int j = esquerda; j < fim; j++)
 		{
+			Pessoa p0 = new Pessoa(A[i0]);
+			Pessoa p1 = new Pessoa(A[i1]);
 			/* se a cabeca da lista da esquerda existe e é <= a cabeca da lista da direita */
-			if (i0 < direita && (i1 >= fim || A[i0] <= A[i1]))
+			if (i0 < direita && (i1 >= fim || p0.getPais() <= p1.getPais()))
 			{
-				B[j] = A[i0];
+				if( p0.getPais() == p1.getPais())
+					if(p0.getSexo() <= p1.getSexo())
+						B[j] = A[i0];
+					else B[j] = A[i1];
+				else B[j] = A[i0];
 				i0++;
 			}
 			else
@@ -191,9 +198,39 @@ public class ArquivoOrdenado {
 	 * GROUP BY pais, sexo;
 	 * @throws IOException
 	 */
-	public static void consulta1() {
+	public static void consulta1() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|count(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo!=999) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 1 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -205,9 +242,47 @@ public class ArquivoOrdenado {
 	 * GROUP BY pais, sexo , idade;
 	 * @throws IOException
 	 */
-	public static void consulta2() {
+	public static void consulta2() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|idade|count(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        long idadeAtual = 999, idadeAntiga = 999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	idadeAtual = p.getIdade();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo!=999) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ idadeAntiga + "|" + cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		idadeAntiga = idadeAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ idadeAntiga + "|" + cont);
+            		sexoAntigo = sexoAtual;
+            		idadeAntiga = idadeAtual;
+            		cont = 0;
+            	} else if(idadeAtual != idadeAntiga){
+            		//System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ idadeAntiga + "|" + cont);
+            		idadeAntiga = idadeAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 2 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -219,9 +294,40 @@ public class ArquivoOrdenado {
 	 * GROUP BY pais, sexo;
 	 * @throws IOException
 	 */
-	public static void consulta3() {
+	public static void consulta3() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|avg(salario)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        int cont = 0, soma = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	cont++;
+            	soma += p.getRenda();
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo!=999) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ soma/cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ soma/cont);
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 3 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -233,9 +339,40 @@ public class ArquivoOrdenado {
 	 * GROUP BY pais, sexo;
 	 * @throws IOException
 	 */
-	public static void consulta4() {
+	public static void consulta4() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|avg(idade)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        int cont = 0, soma = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	cont++;
+            	soma += p.getIdade();
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo!=999) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ soma/cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ soma/cont);
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 4 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -248,9 +385,39 @@ public class ArquivoOrdenado {
 	 * GROUP BY pais, sexo;
 	 * @throws IOException
 	 */
-	public static void consulta5() {
+	public static void consulta5() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|count(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo==15) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//if(paisAntigo==15) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 5 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -263,9 +430,39 @@ public class ArquivoOrdenado {
 	 * AND sexo = 1;
 	 * @throws IOException
 	 */
-	public static void consulta6() {
+	public static void consulta6() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|count(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo==15 && sexoAntigo==1) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//if(paisAntigo==15 && sexoAntigo==1) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 6 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -278,9 +475,39 @@ public class ArquivoOrdenado {
 	 * GROUP BY pais, sexo;
 	 * @throws IOException
 	 */
-	public static void consulta7() {
+	public static void consulta7() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|sexo|count(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo>=0 && paisAntigo<=15) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//if(paisAntigo>=0 && paisAntigo<=15) System.out.println(paisAntigo +"|"+ sexoAntigo +"|"+ cont);
+            		sexoAntigo = sexoAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 7 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -291,10 +518,49 @@ public class ArquivoOrdenado {
 	 * FROM pessoas 
 	 * WHERE 
 	 * GROUP 
+	 * @throws IOException 
 	 */
-	public static void consulta8() {
+	public static void consulta8() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|escolaridade");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long sexoAtual = 999, sexoAntigo = 999;
+        long escolaridadeAtual = 999, escolaridadeAntiga = 999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	sexoAtual = p.getSexo();
+            	escolaridadeAtual = p.getEscolaridade();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(sexoAntigo==0) System.out.println(paisAntigo +"|"+ escolaridadeAntiga +"|"+ cont );
+            		paisAntigo = paisAtual;
+            		sexoAntigo = sexoAtual;
+            		escolaridadeAntiga = escolaridadeAtual;
+            		cont = 0;
+            	}else if(sexoAtual != sexoAntigo){
+            		//if(sexoAntigo==0) System.out.println(paisAntigo +"|"+ escolaridadeAntiga +"|"+ cont);
+            		sexoAntigo = sexoAtual;
+            		escolaridadeAntiga = escolaridadeAtual;
+            		cont = 0;
+            	}else if(escolaridadeAtual != escolaridadeAntiga){
+            		//if(sexoAntigo==0) System.out.println(paisAntigo +"|"+ escolaridadeAntiga +"|"+ cont);
+            		escolaridadeAntiga = escolaridadeAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 8 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -305,10 +571,49 @@ public class ArquivoOrdenado {
 	 * FROM pessoas 
 	 * WHERE 
 	 * GROUP 
+	 * @throws IOException 
 	 */
-	public static void consulta9() {
+	public static void consulta9() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|idade|renda|COUNT(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long idadeAtual = 999, idadeAntiga = 999;
+        long rendaAtual = 999999999, rendaAntiga = 999999999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	idadeAtual = p.getIdade();
+            	rendaAtual = p.getRenda();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo==115 && idadeAntiga>=18 && idadeAntiga<65 && rendaAntiga >= 1000) System.out.println(paisAntigo +"|"+ idadeAntiga +"|"+ rendaAtual +"|"+ cont );
+            		paisAntigo = paisAtual;
+            		idadeAntiga = idadeAtual;
+            		rendaAntiga = rendaAtual;
+            		cont = 0;
+            	}else if(idadeAtual != idadeAntiga){
+            		//if(paisAntigo==115 && idadeAntiga>=18 && idadeAntiga<65 && rendaAntiga >= 1000) System.out.println(paisAntigo +"|"+ idadeAntiga +"|"+ rendaAtual +"|"+ cont);
+            		idadeAntiga = idadeAtual;
+            		rendaAntiga = rendaAtual;
+            		cont = 0;
+            	}else if(rendaAtual != rendaAntiga){
+            		//if(paisAntigo==115 && idadeAntiga>=18 && idadeAntiga<65 && rendaAntiga >= 1000) System.out.println(paisAntigo +"|"+ idadeAntiga +"|"+ rendaAtual +"|"+ cont);
+            		rendaAntiga = rendaAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 9 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -319,10 +624,41 @@ public class ArquivoOrdenado {
 	 * FROM pessoas 
 	 * WHERE 
 	 * GROUP 
+	 * @throws IOException 
 	 */
-	public static void consulta10() {
+	public static void consulta10() throws IOException {
 		long startTimer = System.currentTimeMillis();
-		
+		//System.out.println("pais|idioma|count(*)");
+		RandomAccessFile arquivo = new RandomAccessFile ("BancoOrdenado.bin", "r");
+        FileChannel aChannel = arquivo.getChannel();
+        ByteBuffer buffer = ByteBuffer.allocate(8 * TAMANHO_MEM);
+        long paisAtual = 999, paisAntigo = 999;
+        long idiomaAtual = 99999999, idiomaAntigo = 99999999;
+        int cont = 0;
+        while(aChannel.read(buffer) > 0)
+        {
+            buffer.flip();
+            while (buffer.hasRemaining())
+            {
+            	Pessoa p = new Pessoa(buffer.getLong());
+            	paisAtual = p.getPais();
+            	idiomaAtual = p.getSexo();
+            	cont++;
+            	if(paisAtual != paisAntigo){
+            		//if(paisAntigo>=200 && idiomaAntigo>=4000) System.out.println(paisAntigo +"|"+ idiomaAntigo +"|"+ cont);
+            		paisAntigo = paisAtual;
+            		idiomaAntigo = idiomaAtual;
+            		cont = 0;
+            	}else if(idiomaAtual != idiomaAntigo){
+            		//if(paisAntigo>=200 && idiomaAntigo>=4000) System.out.println(paisAntigo +"|"+ idiomaAntigo +"|"+ cont);
+            		idiomaAntigo = idiomaAtual;
+            		cont = 0;
+            	}
+            }
+            buffer.clear(); 
+        }
+        aChannel.close();
+        arquivo.close();
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 10 no arquivo binario ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}

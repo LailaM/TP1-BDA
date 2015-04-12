@@ -1,0 +1,54 @@
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.sql.SQLException;
+
+public class Main {
+
+	public static void main(String[] args) throws IOException, SQLException {
+		
+		String nomeBanco = "./Banco.bin";
+		
+		BDMySql censo = new BDMySql();
+		censo.conectar();
+		
+		if(censo.estaConectado()){
+			censo.inicializar();
+			
+			Arquivo.abreArquivoBinario(nomeBanco);
+			
+	        for(int i = 0; i < Arquivo.NUM_BUFFERS; i++)
+	        {
+	        	ByteBuffer buffer = setBuffer();
+	        	Arquivo.imprimeBufferArquivoBinario(buffer);
+	        	censo.insereBuffer(buffer);
+	        }
+			
+	        Arquivo.fechaArquivoBinario();
+	        
+	        Arquivo.leArquivoBinario(nomeBanco);
+	        
+			Arquivo.criaArquivosTemp();
+			Arquivo.escreveArquivoBinarioOrdenado(nomeBanco);
+			Arquivo.apagaArquivosTemp();
+			
+			
+			censo.desconectar();
+		}else{
+			System.out.println("Não foi possível conectar ao banco");
+		}
+
+	}
+	/**
+	 * Carrega buffer de bytes com os dados de uma pessoa
+	 */
+	private static ByteBuffer setBuffer() {
+        ByteBuffer buffer = ByteBuffer.allocate(8 * Arquivo.TAMANHO_MEM);
+        while (buffer.hasRemaining()) {
+			Pessoa p = new Pessoa();
+			buffer.putLong(p.getPessoaBinario());
+		}
+
+        buffer.rewind();
+        return buffer;
+    }
+}

@@ -1,0 +1,132 @@
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.sql.SQLException;
+import java.util.Scanner;
+
+public class Main {
+
+	public static void main(String[] args) throws IOException, SQLException {
+		
+		String nomeBanco = "./Banco.bin";
+		
+		//cria banco de dados e abre uma conexao
+		BDMySql censo = new BDMySql();
+		censo.conectar();
+		
+		if(censo.estaConectado()){
+			//Menu inicial
+			System.out.println("O que voce deseja fazer?");
+			System.out.println("1.) Criar novo banco.");
+			System.out.println("2.) Pesquisar no banco já existente.");
+			
+			Scanner input = new Scanner(System.in);
+			
+			int opt;
+			opt = input.next().charAt(0);
+			
+			switch(opt){
+			case '1':
+				//cria novo banco mysql
+				censo.inicializar();
+				
+				//abre arquivo binario para escrita
+				Arquivo.abreArquivoBinario(nomeBanco);
+				
+				System.out.println("Criando Banco e arquivo binario...");
+				
+				//escreve dados no arquivo binário e no banco de dados
+		        for(int i = 0; i < Arquivo.NUM_BUFFERS; i++)
+		        {
+		        	ByteBuffer buffer = setBuffer();
+		        	Arquivo.imprimeBufferArquivoBinario(buffer);
+		        	censo.insereBuffer(buffer);
+		        }
+				
+		        System.out.println("Banco e arquivo binario foram criados com sucesso!");
+		        
+		        //fecha arquivo
+		        Arquivo.fechaArquivoBinario();
+		        
+		        //lê arquivo que acabou de ser gerado e imprime dados na tela
+		        //Arquivo.leArquivoBinario(nomeBanco);
+		        
+		        System.out.println("Criando arquivo binario ordenado...");
+		        
+		        //ordena arquivo que foi gerado
+				Arquivo.criaArquivosTemp();
+				Arquivo.escreveArquivoBinarioOrdenado(nomeBanco);
+				Arquivo.apagaArquivosTemp();
+				
+				System.out.println("Arquivo foi criado com sucesso!");
+				break;
+			case '2': 
+				//Menu de pesquisa
+				System.out.println("Selecione uma pesquisa?");
+				//Opcoes obrigatorias
+				System.out.println("a.) SELECT pais, sexo, count(*) FROM pessoas GROUP BY pais, sexo;");
+				System.out.println("b.) SELECT pais, sexo, idade, count(*) FROM pessoas GROUP BY pais, sexo , idade;");
+				System.out.println("c.) SELECT pais, sexo, avg(salario) FROM pessoas GROUP BY pais, sexo;");
+				System.out.println("d.) SELECT pais, sexo, avg(idade) FROM pessoas GROUP BY pais, sexo;");
+				System.out.println("e.) SELECT pais, sexo, count(*) FROM pessoas WHERE pais = 15 GROUP BY pais, sexo;");
+				System.out.println("f.) SELECT pais, sexo, count(*) FROM pessoas WHERE pais = 15 AND sexo = 1;");
+				System.out.println("g.) SELECT pais, sexo, count(*) FROM pessoas WHERE pais>=0 AND pais<=15 GROUP BY pais, sexo;");
+				//Opcoes extras
+				System.out.println("h.) ");
+				System.out.println("i.) ");
+				System.out.println("j.) ");
+				
+				int opt2;
+				opt2 = System.in.read();
+
+				switch(opt2){
+				case 'a': 
+					break;
+				case 'b': 
+					break;
+				case 'c': 
+					break;
+				case 'd': 
+					break;
+				case 'e': 
+					break;
+				case 'f': 
+					break;
+				case 'g': 
+					break;
+				case 'h': 
+					break;
+				case 'i': 
+					break;
+				case 'j': 
+					break;
+				default: 
+					System.out.println("Esta opcao nao existe.");
+					break;
+				}
+				break;
+			default: 
+				System.out.println("Esta opcao nao existe.");
+				break;
+			}
+			
+			//desconecta banco de dados
+			censo.desconectar();
+		}else{
+			System.out.println("Não foi possível conectar ao banco");
+		}
+
+	}
+	
+	/**
+	 * Carrega buffer de bytes com os dados de uma pessoa
+	 */
+	private static ByteBuffer setBuffer() {
+        ByteBuffer buffer = ByteBuffer.allocate(8 * Arquivo.TAMANHO_MEM);
+        while (buffer.hasRemaining()) {
+			Pessoa p = new Pessoa();
+			buffer.putLong(p.getPessoaBinario());
+		}
+        buffer.rewind();
+        return buffer;
+    }
+}

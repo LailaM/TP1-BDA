@@ -219,18 +219,21 @@ public class Arquivo {
             while (buffer.hasRemaining())
             {
             	Pessoa p = new Pessoa(buffer.getLong());
-            	if(p.getSexo() == sexo && p.getPais() == pais)
+            	if(p.getSexo() == sexo && p.getPais() == pais){
             		if(coluna == 4) // coluna renda
             			soma += p.getRenda();
             		else if(coluna == 3) // coluna idade
             			soma += p.getIdade();
             		cont++;
+            	}
             }
             buffer.clear(); 
         }
         aChannel.close();
         arquivo.close();
-        return soma/cont;
+        if(cont != 0)
+        	return soma/cont;
+        else return 0;
     }
 	
 	/**
@@ -247,7 +250,7 @@ public class Arquivo {
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				long cont = pesquisa(nomeArquivo, idpais, idsexo);
-				//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
+				//if(cont > 0) System.out.println(idpais +"|"+ idsexo +"|"+ cont);
 			}
 		}
         long endTimer = System.currentTimeMillis();
@@ -269,7 +272,7 @@ public class Arquivo {
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				for( int ididade = 0; ididade < 127; ididade++){
 					long cont = pesquisa(nomeArquivo, idpais, idsexo, ididade);
-					//System.out.println(idpais +"|"+ idsexo +"|"+ ididade +"|"+ cont);
+					//if(cont > 0) System.out.println(idpais +"|"+ idsexo +"|"+ ididade +"|"+ cont);
 				}
 			}
 		}
@@ -291,7 +294,7 @@ public class Arquivo {
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				long avg = calculaMedia(nomeArquivo, idpais, idsexo, 4);
-				//System.out.println(idpais +"|"+ idsexo +"|"+ avg);
+				//if(cont > 0) System.out.println(idpais +"|"+ idsexo +"|"+ avg);
 			}
 		}
         long endTimer = System.currentTimeMillis();
@@ -312,7 +315,7 @@ public class Arquivo {
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				long avg = calculaMedia(nomeArquivo, idpais, idsexo, 3);
-				//System.out.println(idpais +"|"+ idsexo +"|"+ avg);
+				//if(cont > 0) System.out.println(idpais +"|"+ idsexo +"|"+ avg);
 			}
 		}
         long endTimer = System.currentTimeMillis();
@@ -333,7 +336,7 @@ public class Arquivo {
 		//System.out.println("pais|sexo|count(*)");
 		for( int idsexo = 0; idsexo < 2; idsexo++){
 			long cont = pesquisa(nomeArquivo, 15, idsexo);
-			//System.out.println(15 +"|"+ idsexo +"|"+ cont);
+			//if(cont > 0) System.out.println(15 +"|"+ idsexo +"|"+ cont);
 		}
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 5 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
@@ -352,7 +355,7 @@ public class Arquivo {
 		long startTimer = System.currentTimeMillis();
 		//System.out.println("pais|sexo|count(*)");
 		long cont = pesquisa(nomeArquivo, 15, 1);
-		//System.out.println(15 +"|"+ 1 +"|"+ cont);
+		//if(cont > 0) System.out.println(15 +"|"+ 1 +"|"+ cont);
         long endTimer = System.currentTimeMillis();
 		System.out.println("Tempo da consulta 6 no arquivo binario nao ordenado: " + (endTimer - startTimer) + " milisegundos");
 	}
@@ -372,7 +375,7 @@ public class Arquivo {
 		for(int idpais = 0; idpais <= 15; idpais++){
 			for( int idsexo = 0; idsexo < 2; idsexo++){
 				long cont = pesquisa(nomeArquivo, idpais, idsexo);
-				//System.out.println(idpais +"|"+ idsexo +"|"+ cont);
+				//if(cont > 0) System.out.println(idpais +"|"+ idsexo +"|"+ cont);
 			}
 		}
         long endTimer = System.currentTimeMillis();
@@ -381,11 +384,11 @@ public class Arquivo {
 	
 	/**
 	 * Realiza a consulta 
-    		"SELECT pais, escolaridade"
-    		+ "FROM pessoas "
-			+ "WHERE sexo=0 "
-			+ "GROUP BY pais"
-			+ "ORDER BY escolaridade;";
+	 * SELECT pais, escolaridade, COUNT(*)
+	 * FROM pessoas 
+	 * WHERE sexo=0 
+	 * GROUP BY pais, escolaridade
+	 * ORDER BY escolaridade;
 	 * @param nomeArquivo
 	 * @throws IOException 
 	 */
@@ -395,7 +398,7 @@ public class Arquivo {
 		for(int idpais = 0; idpais < 256; idpais++){
 			for( int idesc = 0; idesc < 4; idesc++){
 				int cont = pesquisa2(nomeArquivo, idpais, idesc);
-				//if(cont >=0)System.out.println(idpais +"|"+ idesc );
+				//if(cont > 0) System.out.println(idpais +"|"+ idesc );
 			}
 		}
         long endTimer = System.currentTimeMillis();
@@ -404,22 +407,24 @@ public class Arquivo {
 	
 	/**
 	 * Realiza a consulta 
-    		"SELECT pais, idade, renda"
-    		+ "FROM pessoas "
-			+ "WHERE idade>=18 "
-			+ "ORDER BY renda DESC;";
+	 * SELECT pais, idade, renda, COUNT(*)
+	 * FROM pessoas 
+	 * WHERE idade>=18 
+	 * AND idade < 65
+	 * AND renda >= 1000
+	 * AND pais = 115
+	 * GROUP BY pais, idade, renda
+	 * ORDER BY renda DESC;
 	 * @param nomeArquivo
 	 * @throws IOException 
 	 */
 	public static void consulta9(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
-		//System.out.println("pais|idade|renda");
-		for(int idpais = 0; idpais < 256; idpais++){
-			for( int ididade = 18; ididade < 128; ididade++){
-				for( int idrenda = 1023; idrenda >= 0; idrenda--){
-					int cont = pesquisa3(nomeArquivo, idpais, ididade, idrenda);
-					//if(cont >=0)System.out.println(idpais +"|"+ ididade + "|" +  idrenda);
-				}
+		//System.out.println("pais|idade|renda|count(*)");
+		for( int ididade = 18; ididade < 65; ididade++){
+			for( int idrenda = 1023; idrenda >= 1000; idrenda--){
+				int cont = pesquisa3(nomeArquivo, 115, ididade, idrenda);
+				//if(cont > 0) System.out.println(idpais +"|"+ ididade + "|" +  idrenda + "|" + cont);
 			}
 		}
         long endTimer = System.currentTimeMillis();
@@ -428,19 +433,21 @@ public class Arquivo {
 	
 	/**
 	 * Realiza a consulta 
-    		"SELECT pais, idioma, COUNT(*)"
-    		+ "FROM pessoas "
-			+ "GROUP BY pais, idioma;";
+	 * SELECT pais, idioma, COUNT(*)
+	 * FROM pessoas 
+	 * WHERE pais >= 200
+	 * AND idioma >= 4000 
+	 * GROUP BY pais, idioma;";
 	 * @param nomeArquivo
 	 * @throws IOException 
 	 */
 	public static void consulta10(String nomeArquivo) throws IOException {
 		long startTimer = System.currentTimeMillis();
 		//System.out.println("pais|idioma");
-		for(int idpais = 0; idpais < 256; idpais++){
-			for( int ididioma = 0; ididioma < 4096; ididioma++){
+		for(int idpais = 200; idpais < 256; idpais++){
+			for( int ididioma = 4000; ididioma < 4096; ididioma++){
 				int cont = pesquisa4(nomeArquivo, idpais, ididioma);
-				//System.out.println(idpais +"|"+ ididade + "|" + cont);
+				//if(cont > 0) System.out.println(idpais +"|"+ ididade + "|" + cont);
 			}
 		}
         long endTimer = System.currentTimeMillis();
