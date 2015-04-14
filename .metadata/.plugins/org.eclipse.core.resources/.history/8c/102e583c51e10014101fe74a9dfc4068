@@ -67,7 +67,7 @@ public class Main {
 				
 				System.out.println("Arquivo foi criado com sucesso!");
 				
-				//censo.carregaDeArquivo(nomeBanco);
+				//censo.carregaDeArquivo("BancoOrdenado.bin");
 				
 				break;
 			case '2': 
@@ -91,53 +91,53 @@ public class Main {
 
 				switch(opt2){
 				case 'a': 
-					censo.consulta1();
-					//Arquivo.consulta1(nomeBanco);
+					//censo.consulta1();
+					Arquivo.consulta1(nomeBanco);
 					//ArquivoOrdenado.consulta1();
 					break;
 				case 'b': 
-					censo.consulta2();
-					//Arquivo.consulta2(nomeBanco);
+					//censo.consulta2();
+					Arquivo.consulta2(nomeBanco);
 					//ArquivoOrdenado.consulta2();
 					break;
 				case 'c': 
-					censo.consulta3();
-					//Arquivo.consulta3(nomeBanco);
+					//censo.consulta3();
+					Arquivo.consulta3(nomeBanco);
 					//ArquivoOrdenado.consulta3();
 					break;
 				case 'd': 
-					censo.consulta4();
-					//Arquivo.consulta4(nomeBanco);
+					//censo.consulta4();
+					Arquivo.consulta4(nomeBanco);
 					//ArquivoOrdenado.consulta4();
 					break;
 				case 'e': 
-					censo.consulta5();
-					//Arquivo.consulta5(nomeBanco);
+					//censo.consulta5();
+					Arquivo.consulta5(nomeBanco);
 					//ArquivoOrdenado.consulta5();
 					break;
 				case 'f': 
-					censo.consulta6();
-					//Arquivo.consulta6(nomeBanco);
+					//censo.consulta6();
+					Arquivo.consulta6(nomeBanco);
 					//ArquivoOrdenado.consulta6();
 					break;
 				case 'g': 
-					censo.consulta7();
-					//Arquivo.consulta7(nomeBanco);
+					//censo.consulta7();
+					Arquivo.consulta7(nomeBanco);
 					//ArquivoOrdenado.consulta7();
 					break;
 				case 'h': 
-					censo.consulta8();
-					//Arquivo.consulta8(nomeBanco);
+					//censo.consulta8();
+					Arquivo.consulta8(nomeBanco);
 					//ArquivoOrdenado.consulta8();
 					break;
 				case 'i': 
-					censo.consulta9();
-					//Arquivo.consulta9(nomeBanco);
+					//censo.consulta9();
+					Arquivo.consulta9(nomeBanco);
 					//ArquivoOrdenado.consulta9();
 					break;
 				case 'j': 
-					censo.consulta10();
-					//Arquivo.consulta10(nomeBanco);
+					//censo.consulta10();
+					Arquivo.consulta10(nomeBanco);
 					//ArquivoOrdenado.consulta10();
 					break;
 				default: 

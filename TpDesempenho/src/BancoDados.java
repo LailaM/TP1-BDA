@@ -224,6 +224,11 @@ public class BancoDados {
 				+ AUTO_INCREMENT);
         statement.execute();
         statement.close();
+        final PreparedStatement statement2 = connectionMysql.prepareStatement(
+        		"CREATE INDEX pessoas_myidx ON pessoas (pais, sexo);");
+        statement2.execute();
+        statement2.close();
+        
 	}
 	
 	/**
@@ -238,6 +243,10 @@ public class BancoDados {
 				+ PRIMARY_KEY);
         statement.execute();
         statement.close();
+        final PreparedStatement statement2 = connectionPostgreSql.prepareStatement(
+        		"CREATE INDEX pessoas_myidx ON pessoas (pais, sexo);");
+        statement2.execute();
+        statement2.close();
 	}
 	
 	/**

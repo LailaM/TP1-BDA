@@ -14,9 +14,9 @@ import java.util.Arrays;
 
 
 public class ArquivoOrdenado {
-	public final static int TAMANHO_MEM = 1000000;//100;
-	public final static int NUM_BUFFERS = 6000;//6;
-	public final static long TAMANHO_ARQ = 6000000000L;//600;
+	public final static int TAMANHO_MEM = 1000;//100;
+	public final static int NUM_BUFFERS = 1;//6;
+	public final static long TAMANHO_ARQ = 1000L;//600;
 	public final static long INFINITO = Long.MAX_VALUE;
 	
 	public static RandomAccessFile arquivo = null;
@@ -171,17 +171,22 @@ public class ArquivoOrdenado {
 		/* enquanto existir elementos na lista da esquerda e/ou direita */
 		for (int j = esquerda; j < fim; j++)
 		{
-			Pessoa p0 = new Pessoa(A[i0]);
-			Pessoa p1 = new Pessoa(A[i1]);
+
 			/* se a cabeca da lista da esquerda existe e é <= a cabeca da lista da direita */
-			if (i0 < direita && (i1 >= fim || p0.getPais() <= p1.getPais()))
+			if (i0 < direita && (i1 >= fim || (new Pessoa(A[i0])).getPais() <= (new Pessoa(A[i1])).getPais()))
 			{
-				if( p0.getPais() == p1.getPais())
-					if(p0.getSexo() <= p1.getSexo())
+				if( i1 < fim && (new Pessoa(A[i0])).getPais() ==  (new Pessoa(A[i1])).getPais())
+					if((new Pessoa(A[i0])).getSexo() <=  (new Pessoa(A[i1])).getSexo()){
 						B[j] = A[i0];
-					else B[j] = A[i1];
-				else B[j] = A[i0];
-				i0++;
+						i0++;
+					}else{ 
+						B[j] = A[i1];
+						i1++;
+					}
+				else{ 
+					B[j] = A[i0];
+					i0++;
+				}
 			}
 			else
 			{

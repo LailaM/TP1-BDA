@@ -6,9 +6,9 @@ import java.nio.channels.FileChannel;
 
 public class Arquivo {
 	
-	public final static int TAMANHO_MEM = 1000;//100;
-	public final static int NUM_BUFFERS = 1;//6;
-	public final static long TAMANHO_ARQ = 1000L;//600;
+	public final static int TAMANHO_MEM = 1000000;//100;
+	public final static int NUM_BUFFERS = 6000;//6;
+	public final static long TAMANHO_ARQ = 6000000000L;//600;
 	public final static long INFINITO = Long.MAX_VALUE;
 	
 	public static RandomAccessFile arquivo = null;

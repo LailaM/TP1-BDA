@@ -32,7 +32,7 @@ public class Main {
 				//cria novo banco mysql e postgre
 				censo.inicializarMySql();
 				censo.inicializarPostgreSql();
-				
+				/*
 				//abre arquivo binario para escrita
 				Arquivo.abre(nomeBanco);
 				
@@ -66,8 +66,8 @@ public class Main {
 				ArquivoOrdenado.apagaArquivosTemp();
 				
 				System.out.println("Arquivo foi criado com sucesso!");
-				
-				//censo.carregaDeArquivo(nomeBanco);
+				*/
+				censo.carregaDeArquivo(nomeBanco);
 				
 				break;
 			case '2': 
